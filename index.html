@@ -1,0 +1,4054 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Almoxarifado - F.W. COMPANY</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #2980b9;
+            --light-color: #ecf0f1;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --gray-color: #95a5a6;
+            --text-color: #2c3e50;
+            --border-color: #bdc3c7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        /* Tela de Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            padding: 20px;
+        }
+        
+        .login-box {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .fw-logo {
+            height: 80px;
+            width: auto;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            padding: 10px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            font-size: 16px;
+            color: var(--gray-color);
+            margin-bottom: 30px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            text-align: left;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .login-switch {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--gray-color);
+        }
+        
+        .login-switch a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .login-switch a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Dashboard Container (inicialmente escondido) */
+        .dashboard-container {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(25deg);
+        }
+        
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .project-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .project-info {
+            display: flex;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .info-item {
+            text-align: center;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .info-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tabs-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .tabs-header {
+            display: flex;
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 18px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .tab-button.active {
+            background-color: white;
+            color: var(--secondary-color);
+        }
+        
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--secondary-color);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--secondary-color);
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: var(--secondary-color);
+        }
+        
+        .progress-container {
+            margin-bottom: 18px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.8s ease;
+        }
+        
+        .progress-fill.planned {
+            background-color: var(--secondary-color);
+        }
+        
+        .progress-fill.actual {
+            background-color: var(--success-color);
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            height: 450px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-title i {
+            color: var(--secondary-color);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-ontrack {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+        }
+        
+        .status-delayed {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        
+        .metric-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            font-size: 15px;
+            color: var(--gray-color);
+        }
+        
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #219653);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray-color), #7f8c8d);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        
+        .stock-low {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .stock-medium {
+            background-color: rgba(243, 156, 18, 0.1);
+        }
+        
+        .stock-high {
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
+        .footer-info {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--gray-color);
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .developer-info {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 5px;
+        }
+
+        .import-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .import-success {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .import-error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+
+        .file-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--gray-color);
+            font-style: italic;
+        }
+        
+        /* Estilos para seleção em massa */
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .bulk-info {
+            font-size: 14px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 15px;
+        }
+        
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
+        }
+        
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .selected-row {
+            background-color: rgba(52, 152, 219, 0.1) !important;
+        }
+        
+        .bulk-action-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .bulk-action-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .project-info {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .tabs-header {
+                flex-direction: column;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .bulk-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+             <div class="login-logo">
+    <img src="FW Logo FULL sem fundo.png" style="height: 150px; width: auto;">
+</div>
+            
+            
+            <p class="login-subtitle">Sistema de Controle de Almoxarifado</p>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Usuário</label>
+                    <input type="text" id="username" class="form-input" placeholder="Digite seu usuário" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Senha</label>
+                    <input type="password" id="password" class="form-input" placeholder="Digite sua senha" required>
+                </div>
+                
+                <div class="error-message" id="errorMessage">Usuário ou senha incorretos!</div>
+                
+                <button type="submit" class="login-btn">Entrar</button>
+            </form>
+            
+            <div class="login-switch">
+                Não tem uma conta? <a id="switchToRegister">Cadastre-se</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard (inicialmente oculto) -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <div class="dashboard-header">
+            <div style="display: flex; align-items: center; gap: 25px;">
+    <img src="FW Logo FULL sem fundo.png" alt="F.W. COMPANY" style="height: 90px; width: auto;">
+    <div>
+        <div class="project-title">CONTROLE DE ALMOXARIFADO</div>
+        <div class="project-subtitle">Sistema de Gestão de Estoque</div>
+    </div>
+</div>
+            
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="project-info">
+                    <div class="info-item">
+                        <div class="info-label">Total de Produtos</div>
+                        <div class="info-value" id="totalProducts">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Valor Total</div>
+                        <div class="info-value" id="totalValue">R$ 0,00</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Itens em Falta</div>
+                        <div class="info-value" id="itemsOutOfStock">0</div>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <div class="user-badge" id="userBadge">
+                        <i class="fas fa-user"></i>
+                        <span id="userName">Usuário</span>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-button active" data-tab="dashboard">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </button>
+                <button class="tab-button" data-tab="products">
+                    <i class="fas fa-boxes"></i> Cadastro de Produtos
+                </button>
+                <button class="tab-button" data-tab="entry">
+                    <i class="fas fa-arrow-down"></i> Entrada
+                </button>
+                <button class="tab-button" data-tab="exit">
+                    <i class="fas fa-arrow-up"></i> Saída
+                </button>
+                <button class="tab-button" data-tab="search">
+                    <i class="fas fa-search"></i> Pesquisar
+                </button>
+                <button class="tab-button" data-tab="management">
+                    <i class="fas fa-cogs"></i> Gerenciamento
+                </button>
+            </div>
+            
+            <!-- Conteúdo das abas -->
+            <div class="tab-content active" id="dashboard">
+                <h2 class="section-title"><i class="fas fa-chart-pie"></i> Dashboard do Almoxarifado</h2>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="dashboardTotalProducts">0</div>
+                        <div class="metric-label">Total de Produtos</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="dashboardTotalValue">R$ 0,00</div>
+                        <div class="metric-label">Valor Total em Estoque</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="dashboardLowStock">0</div>
+                        <div class="metric-label">Produtos com Estoque Baixo</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="dashboardOutOfStock">0</div>
+                        <div class="metric-label">Produtos em Falta</div>
+                    </div>
+                </div>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-chart-bar"></i> Produtos Mais Procurados</div>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="topProductsChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-chart-line"></i> Movimentação Mensal</div>
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="monthlyMovementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-exclamation-triangle"></i> Alertas de Estoque</div>
+                    <div class="table-container">
+                        <table class="data-table" id="alertsTable">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Código</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Estoque Mínimo</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alertsTableBody">
+                                <!-- Os dados serão preenchidos via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="products">
+                <h2 class="section-title"><i class="fas fa-boxes"></i> Cadastro de Produtos</h2>
+                
+                <div class="form-container">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Novo Produto</h3>
+                    <form id="productForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="productCode">Código do Produto</label>
+                                <input type="text" id="productCode" class="form-input" placeholder="Ex: PRD001" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productName">Nome do Produto</label>
+                                <input type="text" id="productName" class="form-input" placeholder="Nome do produto" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="productCategory">Categoria</label>
+                                <select id="productCategory" class="form-input" required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option value="Eletrica">Elétrica</option>
+                                    <option value="Hidraulica">Hidráulica</option>
+                                    <option value="Mecanica">Mecânica</option>
+                                    <option value="Ferragens">Ferragens</option>
+                                    <option value="Ferramentas">Ferramentas</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productUnit">Unidade de Medida</label>
+                                <select id="productUnit" class="form-input" required>
+                                    <option value="">Selecione a unidade</option>
+                                    <option value="Unidade">Unidade</option>
+                                    <option value="Metro">Metro</option>
+                                    <option value="Quilograma">Quilograma</option>
+                                    <option value="Litro">Litro</option>
+                                    <option value="Caixa">Caixa</option>
+                                    <option value="Pacote">Pacote</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="productCost">Custo Unitário (R$)</label>
+                                <input type="number" id="productCost" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productPrice">Preço de Venda (R$)</label>
+                                <input type="number" id="productPrice" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="productMinStock">Estoque Mínimo</label>
+                                <input type="number" id="productMinStock" class="form-input" placeholder="0" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="productMaxStock">Estoque Máximo</label>
+                                <input type="number" id="productMaxStock" class="form-input" placeholder="0" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="productDescription">Descrição</label>
+                            <textarea id="productDescription" class="form-input" rows="3" placeholder="Descrição detalhada do produto"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Cadastrar Produto
+                            </button>
+                            <button type="button" class="btn btn-warning" id="clearProductForm">
+                                <i class="fas fa-broom"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="table-container">
+                    <div class="bulk-actions" id="bulkActions" style="display: none;">
+                        <div class="select-all-container">
+                            <input type="checkbox" id="selectAll">
+                            <label for="selectAll">Selecionar Todos</label>
+                        </div>
+                        <div class="bulk-info" id="selectedCount">0 produtos selecionados</div>
+                        <button class="btn btn-danger btn-sm" id="bulkDeleteBtn">
+                            <i class="fas fa-trash"></i> Excluir Selecionados
+                        </button>
+                        <button class="btn btn-warning btn-sm" id="bulkUpdateBtn">
+                            <i class="fas fa-edit"></i> Atualizar em Massa
+                        </button>
+                        <button class="btn btn-success btn-sm" id="bulkExportBtn">
+                            <i class="fas fa-file-export"></i> Exportar Selecionados
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="clearSelectionBtn">
+                            <i class="fas fa-times"></i> Limpar Seleção
+                        </button>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Produtos Cadastrados</h3>
+                    <table class="data-table" id="productsTable">
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">
+                                    <input type="checkbox" id="selectAllHeader">
+                                </th>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Estoque</th>
+                                <th>Estoque Mín.</th>
+                                <th>Custo Unit.</th>
+                                <th>Preço Venda</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <!-- Os dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Outras abas (Entry, Exit, Search, Management) permanecem iguais -->
+            <div class="tab-content" id="entry">
+                <h2 class="section-title"><i class="fas fa-arrow-down"></i> Entrada de Produtos</h2>
+                
+                <div class="form-container">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Registrar Entrada</h3>
+                    <form id="entryForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="entryProduct">Produto</label>
+                                <select id="entryProduct" class="form-input" required>
+                                    <option value="">Selecione um produto</option>
+                                    <!-- Os produtos serão preenchidos via JavaScript -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="entryQuantity">Quantidade</label>
+                                <input type="number" id="entryQuantity" class="form-input" placeholder="0" min="1" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="entrySupplier">Fornecedor</label>
+                                <input type="text" id="entrySupplier" class="form-input" placeholder="Nome do fornecedor" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="entryUnitCost">Custo Unitário (R$)</label>
+                                <input type="number" id="entryUnitCost" class="form-input" placeholder="0.00" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="entryDate">Data da Entrada</label>
+                                <input type="date" id="entryDate" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="entryNote">Nota Fiscal</label>
+                                <input type="text" id="entryNote" class="form-input" placeholder="Número da nota fiscal">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="entryObservation">Observações</label>
+                            <textarea id="entryObservation" class="form-input" rows="3" placeholder="Observações sobre a entrada"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Registrar Entrada
+                            </button>
+                            <button type="button" class="btn btn-warning" id="clearEntryForm">
+                                <i class="fas fa-broom"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="table-container">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Histórico de Entradas</h3>
+                    <table class="data-table" id="entriesTable">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Fornecedor</th>
+                                <th>Custo Unit.</th>
+                                <th>Nota Fiscal</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entriesTableBody">
+                            <!-- Os dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="exit">
+                <h2 class="section-title"><i class="fas fa-arrow-up"></i> Saída de Produtos</h2>
+                
+                <div class="form-container">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Registrar Saída</h3>
+                    <form id="exitForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="exitProduct">Produto</label>
+                                <select id="exitProduct" class="form-input" required>
+                                    <option value="">Selecione um produto</option>
+                                    <!-- Os produtos serão preenchidos via JavaScript -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="exitQuantity">Quantidade</label>
+                                <input type="number" id="exitQuantity" class="form-input" placeholder="0" min="1" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="exitRequester">Solicitante</label>
+                                <input type="text" id="exitRequester" class="form-input" placeholder="Nome do solicitante" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="exitDepartment">Departamento/Setor</label>
+                                <input type="text" id="exitDepartment" class="form-input" placeholder="Departamento/setor" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="exitDate">Data da Saída</label>
+                                <input type="date" id="exitDate" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="exitProject">Projeto/Atividade</label>
+                                <input type="text" id="exitProject" class="form-input" placeholder="Projeto ou atividade relacionada">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="exitObservation">Observações</label>
+                            <textarea id="exitObservation" class="form-input" rows="3" placeholder="Observações sobre a saída"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-check"></i> Registrar Saída
+                            </button>
+                            <button type="button" class="btn btn-warning" id="clearExitForm">
+                                <i class="fas fa-broom"></i> Limpar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="table-container">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Histórico de Saídas</h3>
+                    <table class="data-table" id="exitsTable">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Solicitante</th>
+                                <th>Departamento</th>
+                                <th>Projeto</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exitsTableBody">
+                            <!-- Os dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="search">
+                <h2 class="section-title"><i class="fas fa-search"></i> Pesquisar Produtos</h2>
+                
+                <div class="search-container">
+                    <div class="form-group search-input">
+                        <label class="form-label" for="searchTerm">Termo de Pesquisa</label>
+                        <input type="text" id="searchTerm" class="form-input" placeholder="Digite código, nome ou categoria do produto">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="searchCategory">Filtrar por Categoria</label>
+                        <select id="searchCategory" class="form-input">
+                            <option value="">Todas as categorias</option>
+                            <option value="Eletrica">Elétrica</option>
+                            <option value="Hidraulica">Hidráulica</option>
+                            <option value="Mecanica">Mecânica</option>
+                            <option value="Ferragens">Ferragens</option>
+                            <option value="Ferramentas">Ferramentas</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="searchStock">Filtrar por Estoque</label>
+                        <select id="searchStock" class="form-input">
+                            <option value="">Todos</option>
+                            <option value="low">Estoque Baixo</option>
+                            <option value="out">Em Falta</option>
+                            <option value="normal">Estoque Normal</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="align-self: flex-end;">
+                        <button type="button" class="btn btn-primary" id="searchButton">
+                            <i class="fas fa-search"></i> Pesquisar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-color);">Resultados da Pesquisa</h3>
+                    <table class="data-table" id="searchTable">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Estoque</th>
+                                <th>Estoque Mín.</th>
+                                <th>Custo Unit.</th>
+                                <th>Preço Venda</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchTableBody">
+                            <!-- Os dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="management">
+                <h2 class="section-title"><i class="fas fa-cogs"></i> Gerenciamento de Estoque</h2>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-file-export"></i> Relatórios</div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <button class="btn btn-primary" id="exportStockReport">
+                                <i class="fas fa-file-excel"></i> Exportar Relatório de Estoque
+                            </button>
+                            <button class="btn btn-success" id="exportMovementsReport">
+                                <i class="fas fa-file-csv"></i> Exportar Movimentações
+                            </button>
+                            <button class="btn btn-warning" id="exportAlertsReport">
+                                <i class="fas fa-file-pdf"></i> Exportar Alertas
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-sync-alt"></i> Ajustes de Estoque</div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <button class="btn btn-warning" id="adjustStockBtn">
+                                <i class="fas fa-edit"></i> Ajustar Estoque
+                            </button>
+                            <button class="btn btn-danger" id="inventoryBtn">
+                                <i class="fas fa-clipboard-list"></i> Realizar Inventário
+                            </button>
+                            <button class="btn btn-info" id="viewHistoryBtn">
+                                <i class="fas fa-history"></i> Ver Histórico de Ajustes
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-file-excel"></i> Importar do Excel</div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div class="form-group">
+                                <label class="form-label" for="excelFile">Selecionar arquivo Excel</label>
+                                <input type="file" id="excelFile" class="form-input" accept=".xlsx, .xls, .csv">
+                                <div class="file-info" id="fileInfo"></div>
+                            </div>
+                            <button class="btn btn-success" id="importExcelBtn">
+                                <i class="fas fa-upload"></i> Importar Dados
+                            </button>
+                            <div class="form-group">
+                                <label class="form-label">Modelo da Planilha</label>
+                                <button class="btn btn-primary" id="downloadTemplateBtn">
+                                    <i class="fas fa-download"></i> Baixar Modelo
+                                </button>
+                            </div>
+                            <div class="import-status" id="importStatus"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><i class="fab fa-google"></i> Integração com Google Sheets</div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div class="form-group">
+                                <label class="form-label" for="googleSheetUrl">URL da Planilha Google Sheets</label>
+                                <input type="text" id="googleSheetUrl" class="form-input" 
+                                       placeholder="https://docs.google.com/spreadsheets/d/1WZJ7-5Uf6Q8n3vB2xY1pLm9oR8tN7cKd/edit?usp=sharing">
+                            </div>
+                            <button class="btn btn-warning" id="connectGoogleSheetsBtn">
+                                <i class="fas fa-sync"></i> Conectar e Sincronizar
+                            </button>
+                            <button class="btn btn-info" id="autoSyncBtn">
+                                <i class="fas fa-redo"></i> Sincronização Automática
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-chart-bar"></i> Estatísticas de Uso</div>
+                    <div class="chart-container">
+                        <canvas id="usageStatisticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-info">
+            <p>Sistema de Controle de Almoxarifado - F.W. COMPANY | Desenvolvido para gestão de estoque</p>
+            <p class="developer-info">Desenvolvido por Fábio Mendes Rodrigues, Planejador da F.W. Company</p>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // VARIÁVEIS GLOBAIS
+        // =============================================
+        let autoSyncInterval = null;
+        let googleSheetConnected = false;
+        let selectedProducts = new Set();
+
+        // Sistema de Login e Cadastro
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginContainer = document.getElementById('loginContainer');
+            const dashboardContainer = document.getElementById('dashboardContainer');
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const switchToRegister = document.getElementById('switchToRegister');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Inicializar dados de exemplo se não existirem
+            initializeSampleData();
+            
+            // Verificar se o usuário já está logado
+            checkLoginStatus();
+            
+            // Alternar entre login e cadastro
+            switchToRegister.addEventListener('click', function() {
+                const isLoginMode = loginForm.querySelector('button').textContent === 'Entrar';
+                
+                if (isLoginMode) {
+                    // Mudar para modo de cadastro
+                    loginForm.querySelector('button').textContent = 'Cadastrar';
+                    switchToRegister.textContent = 'Já tem uma conta? Faça login';
+                    document.querySelector('.login-title').textContent = 'Criar Nova Conta';
+                    document.querySelector('.login-subtitle').textContent = 'Cadastre-se para acessar o sistema';
+                } else {
+                    // Mudar para modo de login
+                    loginForm.querySelector('button').textContent = 'Entrar';
+                    switchToRegister.textContent = 'Não tem uma conta? Cadastre-se';
+                    document.querySelector('.login-title').textContent = 'F.W. COMPANY';
+                    document.querySelector('.login-subtitle').textContent = 'Sistema de Controle de Almoxarifado';
+                }
+                
+                // Limpar campos e mensagem de erro
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                errorMessage.style.display = 'none';
+            });
+            
+            // Processar formulário de login/cadastro
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const isLoginMode = loginForm.querySelector('button').textContent === 'Entrar';
+                
+                if (isLoginMode) {
+                    // Tentar fazer login
+                    if (loginUser(username, password)) {
+                        showDashboard();
+                    } else {
+                        errorMessage.style.display = 'block';
+                    }
+                } else {
+                    // Tentar cadastrar novo usuário
+                    if (registerUser(username, password)) {
+                        alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                        switchToRegister.click(); // Voltar para modo de login
+                    } else {
+                        errorMessage.textContent = 'Usuário já existe!';
+                        errorMessage.style.display = 'block';
+                    }
+                }
+            });
+            
+            // Botão de logout - CORREÇÃO: Adicionar event listener corretamente
+            logoutBtn.addEventListener('click', function() {
+                logoutUser();
+            });
+            
+            // Função para inicializar dados de exemplo
+            function initializeSampleData() {
+                // Verificar se já existem usuários
+                if (!localStorage.getItem('users')) {
+                    const sampleUsers = [
+                        { username: 'admin', password: 'admin123' },
+                        { username: 'fabio', password: 'fwcompany' }
+                    ];
+                    localStorage.setItem('users', JSON.stringify(sampleUsers));
+                }
+                
+                // Verificar se já existem produtos - CORREÇÃO: Limpar produtos existentes
+                if (!localStorage.getItem('products') || JSON.parse(localStorage.getItem('products')).length === 0) {
+                    const sampleProducts = [
+                        {
+                            id: 'sample1',
+                            code: 'P001',
+                            name: 'Fio Elétrico 2.5mm',
+                            category: 'Elétrica',
+                            unit: 'Metro',
+                            cost: 2.50,
+                            price: 3.50,
+                            minStock: 100,
+                            maxStock: 1000,
+                            stock: 0, // CORREÇÃO: Estoque zerado
+                            description: 'Fio elétrico 2.5mm vermelho',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'sample2',
+                            code: 'P002',
+                            name: 'Parafuso 3x20mm',
+                            category: 'Ferragens',
+                            unit: 'Unidade',
+                            cost: 0.15,
+                            price: 0.25,
+                            minStock: 500,
+                            maxStock: 5000,
+                            stock: 0, // CORREÇÃO: Estoque zerado
+                            description: 'Parafuso sextavado 3x20mm',
+                            createdAt: new Date().toISOString()
+                        }
+                    ];
+                    localStorage.setItem('products', JSON.stringify(sampleProducts));
+                }
+                
+                // Limpar entradas e saídas para garantir dados limpos
+                if (!localStorage.getItem('entries')) {
+                    localStorage.setItem('entries', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('exits')) {
+                    localStorage.setItem('exits', JSON.stringify([]));
+                }
+            }
+            
+            // Funções de autenticação
+            function checkLoginStatus() {
+                const loggedInUser = localStorage.getItem('loggedInUser');
+                if (loggedInUser) {
+                    showDashboard();
+                }
+            }
+            
+            function loginUser(username, password) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    localStorage.setItem('loggedInUser', username);
+                    return true;
+                }
+                return false;
+            }
+            
+            function registerUser(username, password) {
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                
+                // Verificar se o usuário já existe
+                if (users.find(u => u.username === username)) {
+                    return false;
+                }
+                
+                // Adicionar novo usuário
+                users.push({ username, password });
+                localStorage.setItem('users', JSON.stringify(users));
+                return true;
+            }
+            
+            function logoutUser() {
+                localStorage.removeItem('loggedInUser');
+                loginContainer.style.display = 'flex';
+                dashboardContainer.style.display = 'none';
+                // CORREÇÃO: Limpar formulário de login ao sair
+                document.getElementById('loginForm').reset();
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+            
+            function showDashboard() {
+                loginContainer.style.display = 'none';
+                dashboardContainer.style.display = 'block';
+                initializeDashboard();
+            }
+            
+            // Inicializar dashboard
+            function initializeDashboard() {
+                const currentUser = localStorage.getItem('loggedInUser');
+                
+                // Atualizar informações do usuário
+                document.getElementById('userName').textContent = currentUser;
+                
+                // Carregar URL do Google Sheets salva
+                loadSavedGoogleSheet();
+                
+                // Tab switching functionality
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const tabContents = document.querySelectorAll('.tab-content');
+                
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabId = button.getAttribute('data-tab');
+                        
+                        // Remove active class from all buttons and contents
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        tabContents.forEach(content => content.classList.remove('active'));
+                        
+                        // Add active class to clicked button and corresponding content
+                        button.classList.add('active');
+                        document.getElementById(tabId).classList.add('active');
+                        
+                        // Atualizar dados específicos da aba
+                        if (tabId === 'dashboard') {
+                            updateDashboard();
+                        } else if (tabId === 'products') {
+                            loadProductsTable();
+                        } else if (tabId === 'entry') {
+                            loadEntryFormProducts();
+                            loadEntriesTable();
+                        } else if (tabId === 'exit') {
+                            loadExitFormProducts();
+                            loadExitsTable();
+                        } else if (tabId === 'search') {
+                            performSearch();
+                        } else if (tabId === 'management') {
+                            loadUsageStatistics();
+                        }
+                    });
+                });
+                
+                // Inicializar formulários
+                initializeForms();
+                
+                // Carregar dados iniciais
+                updateDashboard();
+                loadProductsTable();
+                loadEntryFormProducts();
+                loadExitFormProducts();
+                loadEntriesTable();
+                loadExitsTable();
+                performSearch();
+                loadUsageStatistics();
+            }
+            
+            // Inicializar formulários
+            function initializeForms() {
+                // Formulário de produto
+                const productForm = document.getElementById('productForm');
+                productForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveProduct();
+                });
+                
+                document.getElementById('clearProductForm').addEventListener('click', function() {
+                    productForm.reset();
+                });
+                
+                // Formulário de entrada
+                const entryForm = document.getElementById('entryForm');
+                entryForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveEntry();
+                });
+                
+                document.getElementById('clearEntryForm').addEventListener('click', function() {
+                    entryForm.reset();
+                });
+                
+                // Formulário de saída
+                const exitForm = document.getElementById('exitForm');
+                exitForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    saveExit();
+                });
+                
+                document.getElementById('clearExitForm').addEventListener('click', function() {
+                    exitForm.reset();
+                });
+                
+                // Pesquisa
+                document.getElementById('searchButton').addEventListener('click', function() {
+                    performSearch();
+                });
+                
+                // Botões de exportação
+                document.getElementById('exportStockReport').addEventListener('click', function() {
+                    exportStockReport();
+                });
+                
+                document.getElementById('exportMovementsReport').addEventListener('click', function() {
+                    exportMovementsReport();
+                });
+                
+                document.getElementById('exportAlertsReport').addEventListener('click', function() {
+                    exportAlertsReport();
+                });
+
+                // NOVOS EVENT LISTENERS PARA IMPORTAR EXCEL
+                document.getElementById('importExcelBtn').addEventListener('click', importFromExcel);
+                document.getElementById('downloadTemplateBtn').addEventListener('click', downloadExcelTemplate);
+                document.getElementById('connectGoogleSheetsBtn').addEventListener('click', connectGoogleSheets);
+                document.getElementById('autoSyncBtn').addEventListener('click', toggleAutoSync);
+
+                // NOVOS EVENT LISTENERS PARA AJUSTES DE ESTOQUE
+                document.getElementById('adjustStockBtn').addEventListener('click', adjustStock);
+                document.getElementById('inventoryBtn').addEventListener('click', performInventory);
+                document.getElementById('viewHistoryBtn').addEventListener('click', viewAdjustmentHistory);
+
+                // Mostrar informações do arquivo selecionado
+                document.getElementById('excelFile').addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        document.getElementById('fileInfo').textContent = 
+                            `Arquivo selecionado: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                    }
+                });
+                
+                // Definir data atual nos formulários
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('entryDate').value = today;
+                document.getElementById('exitDate').value = today;
+                
+                // =============================================
+                // EVENT LISTENERS PARA SELEÇÃO EM MASSA
+                // =============================================
+                
+                // Selecionar todos os produtos
+                document.getElementById('selectAllHeader').addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('#productsTableBody input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                        const productId = checkbox.getAttribute('data-product-id');
+                        if (this.checked) {
+                            selectedProducts.add(productId);
+                            checkbox.closest('tr').classList.add('selected-row');
+                        } else {
+                            selectedProducts.delete(productId);
+                            checkbox.closest('tr').classList.remove('selected-row');
+                        }
+                    });
+                    updateBulkActions();
+                });
+                
+                // Selecionar todos (checkbox na barra de ações)
+                document.getElementById('selectAll').addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('#productsTableBody input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                        const productId = checkbox.getAttribute('data-product-id');
+                        if (this.checked) {
+                            selectedProducts.add(productId);
+                            checkbox.closest('tr').classList.add('selected-row');
+                        } else {
+                            selectedProducts.delete(productId);
+                            checkbox.closest('tr').classList.remove('selected-row');
+                        }
+                    });
+                    updateBulkActions();
+                });
+                
+                // Excluir produtos selecionados
+                document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+                    if (selectedProducts.size === 0) {
+                        alert('Selecione pelo menos um produto para excluir.');
+                        return;
+                    }
+                    
+                    if (confirm(`Tem certeza que deseja excluir ${selectedProducts.size} produto(s) selecionado(s)?`)) {
+                        deleteSelectedProducts();
+                    }
+                });
+                
+                // Atualizar produtos em massa
+                document.getElementById('bulkUpdateBtn').addEventListener('click', function() {
+                    if (selectedProducts.size === 0) {
+                        alert('Selecione pelo menos um produto para atualizar.');
+                        return;
+                    }
+                    
+                    showBulkUpdateModal();
+                });
+                
+                // Exportar produtos selecionados
+                document.getElementById('bulkExportBtn').addEventListener('click', function() {
+                    if (selectedProducts.size === 0) {
+                        alert('Selecione pelo menos um produto para exportar.');
+                        return;
+                    }
+                    
+                    exportSelectedProducts();
+                });
+                
+                // Limpar seleção
+                document.getElementById('clearSelectionBtn').addEventListener('click', function() {
+                    clearSelection();
+                });
+            }
+            
+            // =============================================
+            // FUNÇÕES DE SELEÇÃO EM MASSA
+            // =============================================
+            
+            // Função para alternar seleção de um produto
+            function toggleProductSelection(productId, checkbox) {
+                if (checkbox.checked) {
+                    selectedProducts.add(productId);
+                    checkbox.closest('tr').classList.add('selected-row');
+                } else {
+                    selectedProducts.delete(productId);
+                    checkbox.closest('tr').classList.remove('selected-row');
+                }
+                updateBulkActions();
+            }
+            
+            // Atualizar barra de ações em massa
+            function updateBulkActions() {
+                const bulkActions = document.getElementById('bulkActions');
+                const selectedCount = document.getElementById('selectedCount');
+                const selectAllHeader = document.getElementById('selectAllHeader');
+                const selectAll = document.getElementById('selectAll');
+                
+                if (selectedProducts.size > 0) {
+                    bulkActions.style.display = 'flex';
+                    selectedCount.textContent = `${selectedProducts.size} produto(s) selecionado(s)`;
+                    
+                    // Atualizar estado dos checkboxes "selecionar todos"
+                    const totalProducts = document.querySelectorAll('#productsTableBody input[type="checkbox"]').length;
+                    selectAllHeader.checked = selectedProducts.size === totalProducts;
+                    selectAll.checked = selectedProducts.size === totalProducts;
+                } else {
+                    bulkActions.style.display = 'none';
+                }
+            }
+            
+            // Limpar seleção
+            function clearSelection() {
+                selectedProducts.clear();
+                const checkboxes = document.querySelectorAll('#productsTableBody input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    checkbox.closest('tr').classList.remove('selected-row');
+                });
+                updateBulkActions();
+            }
+            
+            // Excluir produtos selecionados
+            function deleteSelectedProducts() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const updatedProducts = products.filter(product => !selectedProducts.has(product.id));
+                
+                localStorage.setItem('products', JSON.stringify(updatedProducts));
+                
+                alert(`${selectedProducts.size} produto(s) excluído(s) com sucesso!`);
+                
+                // Limpar seleção e recarregar tabela
+                clearSelection();
+                loadProductsTable();
+                updateDashboard();
+                loadEntryFormProducts();
+                loadExitFormProducts();
+            }
+            
+            // Mostrar modal para atualização em massa
+            function showBulkUpdateModal() {
+                const modalHtml = `
+                    <div class="bulk-action-modal" id="bulkUpdateModal">
+                        <div class="bulk-action-content">
+                            <h3 style="margin-bottom: 20px; color: var(--primary-color);">
+                                <i class="fas fa-edit"></i> Atualizar Produtos em Massa
+                            </h3>
+                            <p style="margin-bottom: 20px;">Atualizando ${selectedProducts.size} produto(s) selecionado(s)</p>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="bulkUpdateField">Campo para Atualizar</label>
+                                <select id="bulkUpdateField" class="form-input">
+                                    <option value="category">Categoria</option>
+                                    <option value="unit">Unidade de Medida</option>
+                                    <option value="cost">Custo Unitário</option>
+                                    <option value="price">Preço de Venda</option>
+                                    <option value="minStock">Estoque Mínimo</option>
+                                    <option value="maxStock">Estoque Máximo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="bulkUpdateValue">Novo Valor</label>
+                                <input type="text" id="bulkUpdateValue" class="form-input" placeholder="Digite o novo valor">
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 25px;">
+                                <button type="button" class="btn btn-success" id="confirmBulkUpdate">
+                                    <i class="fas fa-check"></i> Aplicar Atualização
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelBulkUpdate">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                const modal = document.getElementById('bulkUpdateModal');
+                
+                // Confirmar atualização em massa
+                document.getElementById('confirmBulkUpdate').addEventListener('click', function() {
+                    const field = document.getElementById('bulkUpdateField').value;
+                    const value = document.getElementById('bulkUpdateValue').value;
+                    
+                    if (!value) {
+                        alert('Por favor, digite um valor para atualização.');
+                        return;
+                    }
+                    
+                    updateSelectedProducts(field, value);
+                    modal.remove();
+                });
+                
+                // Cancelar atualização
+                document.getElementById('cancelBulkUpdate').addEventListener('click', function() {
+                    modal.remove();
+                });
+                
+                // Fechar modal ao clicar fora
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+            }
+            
+            // Atualizar produtos selecionados
+            function updateSelectedProducts(field, value) {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                let updatedCount = 0;
+                
+                products.forEach(product => {
+                    if (selectedProducts.has(product.id)) {
+                        // Converter valor para o tipo apropriado
+                        let processedValue = value;
+                        
+                        if (field === 'cost' || field === 'price') {
+                            processedValue = parseFloat(value) || 0;
+                        } else if (field === 'minStock' || field === 'maxStock') {
+                            processedValue = parseInt(value) || 0;
+                        }
+                        
+                        product[field] = processedValue;
+                        updatedCount++;
+                    }
+                });
+                
+                localStorage.setItem('products', JSON.stringify(products));
+                
+                alert(`${updatedCount} produto(s) atualizado(s) com sucesso!`);
+                
+                // Limpar seleção e recarregar tabela
+                clearSelection();
+                loadProductsTable();
+                updateDashboard();
+                loadEntryFormProducts();
+                loadExitFormProducts();
+            }
+            
+            // Exportar produtos selecionados
+            function exportSelectedProducts() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const selectedProductsData = products.filter(product => selectedProducts.has(product.id));
+                
+                if (selectedProductsData.length === 0) {
+                    alert('Nenhum produto selecionado para exportar.');
+                    return;
+                }
+                
+                let csvContent = "Código;Nome;Categoria;Unidade;Estoque;Estoque Mínimo;Estoque Máximo;Custo Unitário;Preço Venda;Descrição\n";
+                
+                selectedProductsData.forEach(product => {
+                    csvContent += `${product.code};${product.name};${product.category};${product.unit};${product.stock};${product.minStock};${product.maxStock};R$ ${(product.cost || 0).toFixed(2)};R$ ${(product.price || 0).toFixed(2)};${product.description}\n`;
+                });
+                
+                downloadCSV(csvContent, 'produtos_selecionados.csv');
+                alert(`${selectedProductsData.length} produto(s) exportado(s) com sucesso!`);
+            }
+            
+            // Função para gerar ID único
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+            
+            // Funções de cadastro
+            function saveProduct() {
+                const product = {
+                    id: generateId(),
+                    code: document.getElementById('productCode').value,
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('productCategory').value,
+                    unit: document.getElementById('productUnit').value,
+                    cost: parseFloat(document.getElementById('productCost').value) || 0,
+                    price: parseFloat(document.getElementById('productPrice').value) || 0,
+                    minStock: parseInt(document.getElementById('productMinStock').value) || 0,
+                    maxStock: parseInt(document.getElementById('productMaxStock').value) || 0,
+                    description: document.getElementById('productDescription').value,
+                    stock: 0, // Estoque inicial zero
+                    createdAt: new Date().toISOString()
+                };
+                
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                products.push(product);
+                localStorage.setItem('products', JSON.stringify(products));
+                
+                alert('Produto cadastrado com sucesso!');
+                document.getElementById('productForm').reset();
+                loadProductsTable();
+                updateDashboard();
+                loadEntryFormProducts();
+                loadExitFormProducts();
+            }
+            
+            function saveEntry() {
+                const productId = document.getElementById('entryProduct').value;
+                const quantity = parseInt(document.getElementById('entryQuantity').value) || 0;
+                const supplier = document.getElementById('entrySupplier').value;
+                const unitCost = parseFloat(document.getElementById('entryUnitCost').value) || 0;
+                const date = document.getElementById('entryDate').value;
+                const note = document.getElementById('entryNote').value;
+                const observation = document.getElementById('entryObservation').value;
+                
+                if (!productId) {
+                    alert('Selecione um produto!');
+                    return;
+                }
+                
+                const entry = {
+                    id: generateId(),
+                    productId: productId,
+                    quantity: quantity,
+                    supplier: supplier,
+                    unitCost: unitCost,
+                    totalCost: quantity * unitCost,
+                    date: date,
+                    note: note,
+                    observation: observation,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Salvar entrada
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                entries.push(entry);
+                localStorage.setItem('entries', JSON.stringify(entries));
+                
+                // Atualizar estoque do produto
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const productIndex = products.findIndex(p => p.id === productId);
+                
+                if (productIndex !== -1) {
+                    products[productIndex].stock += quantity;
+                    localStorage.setItem('products', JSON.stringify(products));
+                }
+                
+                alert('Entrada registrada com sucesso!');
+                document.getElementById('entryForm').reset();
+                document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+                loadEntriesTable();
+                updateDashboard();
+                loadProductsTable();
+            }
+            
+            function saveExit() {
+                const productId = document.getElementById('exitProduct').value;
+                const quantity = parseInt(document.getElementById('exitQuantity').value) || 0;
+                const requester = document.getElementById('exitRequester').value;
+                const department = document.getElementById('exitDepartment').value;
+                const date = document.getElementById('exitDate').value;
+                const project = document.getElementById('exitProject').value;
+                const observation = document.getElementById('exitObservation').value;
+                
+                if (!productId) {
+                    alert('Selecione um produto!');
+                    return;
+                }
+                
+                // Verificar estoque
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const product = products.find(p => p.id === productId);
+                
+                if (!product) {
+                    alert('Produto não encontrado!');
+                    return;
+                }
+                
+                if (product.stock < quantity) {
+                    alert(`Estoque insuficiente! Estoque atual: ${product.stock}`);
+                    return;
+                }
+                
+                const exit = {
+                    id: generateId(),
+                    productId: productId,
+                    quantity: quantity,
+                    requester: requester,
+                    department: department,
+                    date: date,
+                    project: project,
+                    observation: observation,
+                    unitCost: product.cost,
+                    totalCost: quantity * product.cost,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Salvar saída
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                exits.push(exit);
+                localStorage.setItem('exits', JSON.stringify(exits));
+                
+                // Atualizar estoque do produto
+                const productIndex = products.findIndex(p => p.id === productId);
+                products[productIndex].stock -= quantity;
+                localStorage.setItem('products', JSON.stringify(products));
+                
+                alert('Saída registrada com sucesso!');
+                document.getElementById('exitForm').reset();
+                document.getElementById('exitDate').value = new Date().toISOString().split('T')[0];
+                loadExitsTable();
+                updateDashboard();
+                loadProductsTable();
+            }
+            
+            // Funções de carregamento de dados
+            function loadProductsTable() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const tbody = document.getElementById('productsTableBody');
+                tbody.innerHTML = '';
+                
+                products.forEach(product => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="checkbox-cell">
+                            <input type="checkbox" data-product-id="${product.id}" 
+                                   onchange="toggleProductSelection('${product.id}', this)">
+                        </td>
+                        <td>${product.code}</td>
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.minStock}</td>
+                        <td>R$ ${(product.cost || 0).toFixed(2)}</td>
+                        <td>R$ ${(product.price || 0).toFixed(2)}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Atualizar estado dos checkboxes baseado na seleção atual
+                const checkboxes = document.querySelectorAll('#productsTableBody input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    const productId = checkbox.getAttribute('data-product-id');
+                    checkbox.checked = selectedProducts.has(productId);
+                    if (checkbox.checked) {
+                        checkbox.closest('tr').classList.add('selected-row');
+                    }
+                });
+                
+                updateBulkActions();
+            }
+            
+            // Resto do código permanece igual...
+            // (As outras funções loadEntryFormProducts, loadExitFormProducts, etc.)
+            
+            function loadEntryFormProducts() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const select = document.getElementById('entryProduct');
+                select.innerHTML = '<option value="">Selecione um produto</option>';
+                
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = `${product.code} - ${product.name} (Estoque: ${product.stock})`;
+                    select.appendChild(option);
+                });
+            }
+            
+            function loadExitFormProducts() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const select = document.getElementById('exitProduct');
+                select.innerHTML = '<option value="">Selecione um produto</option>';
+                
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = `${product.code} - ${product.name} (Estoque: ${product.stock})`;
+                    select.appendChild(option);
+                });
+            }
+            
+            function loadEntriesTable() {
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const tbody = document.getElementById('entriesTableBody');
+                tbody.innerHTML = '';
+                
+                entries.forEach(entry => {
+                    const product = products.find(p => p.id === entry.productId);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date(entry.date).toLocaleDateString('pt-BR')}</td>
+                        <td>${product ? `${product.code} - ${product.name}` : 'Produto não encontrado'}</td>
+                        <td>${entry.quantity}</td>
+                        <td>${entry.supplier}</td>
+                        <td>R$ ${(entry.unitCost || 0).toFixed(2)}</td>
+                        <td>${entry.note || '-'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-danger" onclick="deleteEntry('${entry.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            function loadExitsTable() {
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const tbody = document.getElementById('exitsTableBody');
+                tbody.innerHTML = '';
+                
+                exits.forEach(exit => {
+                    const product = products.find(p => p.id === exit.productId);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date(exit.date).toLocaleDateString('pt-BR')}</td>
+                        <td>${product ? `${product.code} - ${product.name}` : 'Produto não encontrado'}</td>
+                        <td>${exit.quantity}</td>
+                        <td>${exit.requester}</td>
+                        <td>${exit.department}</td>
+                        <td>${exit.project || '-'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-danger" onclick="deleteExit('${exit.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // Funções de pesquisa
+            function performSearch() {
+                const term = document.getElementById('searchTerm').value.toLowerCase();
+                const category = document.getElementById('searchCategory').value;
+                const stockFilter = document.getElementById('searchStock').value;
+                
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const tbody = document.getElementById('searchTableBody');
+                tbody.innerHTML = '';
+                
+                const filteredProducts = products.filter(product => {
+                    // Filtro por termo
+                    const matchesTerm = !term || 
+                        product.code.toLowerCase().includes(term) || 
+                        product.name.toLowerCase().includes(term) ||
+                        product.category.toLowerCase().includes(term);
+                    
+                    // Filtro por categoria
+                    const matchesCategory = !category || product.category === category;
+                    
+                    // Filtro por estoque
+                    let matchesStock = true;
+                    if (stockFilter === 'low') {
+                        matchesStock = product.stock > 0 && product.stock <= product.minStock;
+                    } else if (stockFilter === 'out') {
+                        matchesStock = product.stock === 0;
+                    } else if (stockFilter === 'normal') {
+                        matchesStock = product.stock > product.minStock;
+                    }
+                    
+                    return matchesTerm && matchesCategory && matchesStock;
+                });
+                
+                filteredProducts.forEach(product => {
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    if (product.stock === 0) {
+                        statusClass = 'stock-low';
+                        statusText = 'Em Falta';
+                    } else if (product.stock <= product.minStock) {
+                        statusClass = 'stock-medium';
+                        statusText = 'Estoque Baixo';
+                    } else {
+                        statusClass = 'stock-high';
+                        statusText = 'Normal';
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.code}</td>
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.minStock}</td>
+                        <td>R$ ${(product.cost || 0).toFixed(2)}</td>
+                        <td>R$ ${(product.price || 0).toFixed(2)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // Funções de dashboard - CORREÇÃO COMPLETA
+            function updateDashboard() {
+                // Buscar produtos do localStorage
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                
+                // CORREÇÃO: Calcular totais corretamente
+                const totalProducts = products.length;
+                
+                // CORREÇÃO: Garantir que o valor total seja calculado corretamente
+                const totalValue = products.reduce((sum, product) => {
+                    const stock = Number(product.stock) || 0;
+                    const cost = Number(product.cost) || 0;
+                    return sum + (stock * cost);
+                }, 0);
+                
+                const lowStockItems = products.filter(p => p.stock > 0 && p.stock <= p.minStock).length;
+                const outOfStockItems = products.filter(p => p.stock === 0).length;
+                
+                // Atualizar métricas do dashboard
+                document.getElementById('dashboardTotalProducts').textContent = totalProducts;
+                document.getElementById('dashboardTotalValue').textContent = `R$ ${totalValue.toFixed(2)}`;
+                document.getElementById('dashboardLowStock').textContent = lowStockItems;
+                document.getElementById('dashboardOutOfStock').textContent = outOfStockItems;
+                
+                // Atualizar cabeçalho
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('totalValue').textContent = `R$ ${totalValue.toFixed(2)}`;
+                document.getElementById('itemsOutOfStock').textContent = outOfStockItems;
+                
+                // Atualizar tabela de alertas
+                updateAlertsTable();
+                
+                // CARREGAR OS GRÁFICOS
+                loadTopProductsChart();
+                loadMonthlyMovementChart();
+            }
+
+            // Função para carregar gráfico dos produtos mais procurados
+            function loadTopProductsChart() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                
+                // Verificar se há dados
+                if (exits.length === 0) {
+                    showNoDataMessage('topProductsChart', 'Nenhuma saída registrada ainda');
+                    return;
+                }
+                
+                // Calcular quantidade procurada por produto
+                const productRequests = {};
+                
+                exits.forEach(exit => {
+                    if (!productRequests[exit.productId]) {
+                        productRequests[exit.productId] = 0;
+                    }
+                    productRequests[exit.productId] += exit.quantity;
+                });
+                
+                // Ordenar produtos por procura (top 10)
+                const topProducts = Object.entries(productRequests)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 10)
+                    .map(([productId, quantity]) => {
+                        const product = products.find(p => p.id === productId);
+                        return {
+                            name: product ? product.name : 'Produto Não Encontrado',
+                            quantity: quantity
+                        };
+                    });
+                
+                const ctx = document.getElementById('topProductsChart').getContext('2d');
+                
+                // Destruir gráfico anterior se existir
+                if (window.topProductsChartInstance) {
+                    window.topProductsChartInstance.destroy();
+                }
+                
+                // Criar dados para o gráfico
+                const labels = topProducts.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name);
+                const data = topProducts.map(p => p.quantity);
+                
+                window.topProductsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Quantidade Procurada',
+                            data: data,
+                            backgroundColor: [
+                                'rgba(52, 152, 219, 0.7)',
+                                'rgba(46, 204, 113, 0.7)',
+                                'rgba(155, 89, 182, 0.7)',
+                                'rgba(52, 73, 94, 0.7)',
+                                'rgba(241, 196, 15, 0.7)',
+                                'rgba(230, 126, 34, 0.7)',
+                                'rgba(231, 76, 60, 0.7)',
+                                'rgba(149, 165, 166, 0.7)',
+                                'rgba(22, 160, 133, 0.7)',
+                                'rgba(39, 174, 96, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(52, 152, 219, 1)',
+                                'rgba(46, 204, 113, 1)',
+                                'rgba(155, 89, 182, 1)',
+                                'rgba(52, 73, 94, 1)',
+                                'rgba(241, 196, 15, 1)',
+                                'rgba(230, 126, 34, 1)',
+                                'rgba(231, 76, 60, 1)',
+                                'rgba(149, 165, 166, 1)',
+                                'rgba(22, 160, 133, 1)',
+                                'rgba(39, 174, 96, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Top 10 Produtos Mais Procurados',
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Quantidade: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade Procurada'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Produtos'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Função para carregar gráfico de movimentação mensal
+            function loadMonthlyMovementChart() {
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                
+                // Gerar dados dos últimos 6 meses
+                const months = [];
+                const monthlyEntries = [];
+                const monthlyExits = [];
+                
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - i);
+                    const monthYear = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+                    months.push(monthYear);
+                    
+                    // Filtrar movimentações do mês
+                    const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+                    const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                    
+                    const monthEntries = entries.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= monthStart && entryDate <= monthEnd;
+                    });
+                    
+                    const monthExits = exits.filter(exit => {
+                        const exitDate = new Date(exit.date);
+                        return exitDate >= monthStart && exitDate <= monthEnd;
+                    });
+                    
+                    monthlyEntries.push(monthEntries.reduce((sum, entry) => sum + entry.quantity, 0));
+                    monthlyExits.push(monthExits.reduce((sum, exit) => sum + exit.quantity, 0));
+                }
+                
+                const ctx = document.getElementById('monthlyMovementChart').getContext('2d');
+                
+                // Destruir gráfico anterior se existir
+                if (window.monthlyMovementChartInstance) {
+                    window.monthlyMovementChartInstance.destroy();
+                }
+                
+                window.monthlyMovementChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                label: 'Entradas',
+                                data: monthlyEntries,
+                                borderColor: 'rgba(46, 204, 113, 1)',
+                                backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            },
+                            {
+                                label: 'Saídas',
+                                data: monthlyExits,
+                                borderColor: 'rgba(231, 76, 60, 1)',
+                                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Movimentação Mensal - Entradas vs Saídas',
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Itens'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Meses'
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'nearest'
+                        }
+                    }
+                });
+            }
+            
+            // Função auxiliar para mostrar mensagem quando não há dados
+            function showNoDataMessage(canvasId, message) {
+                const canvas = document.getElementById(canvasId);
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#95a5a6';
+                ctx.textAlign = 'center';
+                ctx.fillText(message, canvas.width/2, canvas.height/2);
+            }
+                        
+            function updateAlertsTable() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const tbody = document.getElementById('alertsTableBody');
+                tbody.innerHTML = '';
+                
+                const alertProducts = products.filter(p => p.stock === 0 || p.stock <= p.minStock)
+                    .sort((a, b) => a.stock - b.stock);
+                
+                alertProducts.forEach(product => {
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    if (product.stock === 0) {
+                        statusClass = 'status-delayed';
+                        statusText = 'Em Falta';
+                    } else {
+                        statusClass = 'status-ontrack';
+                        statusText = 'Estoque Baixo';
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.name}</td>
+                        <td>${product.code}</td>
+                        <td>${product.stock}</td>
+                        <td>${product.minStock}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-success" onclick="quickEntry('${product.id}')">
+                                    <i class="fas fa-arrow-down"></i> Entrada
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            function quickEntry(productId) {
+                // Mudar para aba de entrada e selecionar o produto
+                document.querySelector('[data-tab="entry"]').click();
+                document.getElementById('entryProduct').value = productId;
+                document.getElementById('entryQuantity').focus();
+            }
+            
+            // =============================================
+            // FUNÇÕES PARA AJUSTES DE ESTOQUE E INVENTÁRIO
+            // =============================================
+
+            // Função para ajustar estoque manualmente
+            function adjustStock() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                
+                if (products.length === 0) {
+                    alert('Não há produtos cadastrados para ajustar estoque!');
+                    return;
+                }
+                
+                // Criar modal para seleção do produto e ajuste
+                const modalHtml = `
+                    <div id="adjustStockModal" style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 1000;
+                    ">
+                        <div style="
+                            background: white;
+                            padding: 30px;
+                            border-radius: 12px;
+                            width: 90%;
+                            max-width: 500px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        ">
+                            <h3 style="margin-bottom: 20px; color: var(--primary-color);">
+                                <i class="fas fa-edit"></i> Ajustar Estoque
+                            </h3>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Produto</label>
+                                <select id="adjustProductSelect" class="form-input" required>
+                                    <option value="">Selecione um produto</option>
+                                    ${products.map(p => `
+                                        <option value="${p.id}" data-current="${p.stock}">
+                                            ${p.code} - ${p.name} (Estoque: ${p.stock})
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Estoque Atual</label>
+                                <input type="text" id="currentStock" class="form-input" readonly>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Novo Estoque</label>
+                                <input type="number" id="newStock" class="form-input" min="0" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Motivo do Ajuste</label>
+                                <select id="adjustReason" class="form-input" required>
+                                    <option value="">Selecione o motivo</option>
+                                    <option value="inventario">Inventário</option>
+                                    <option value="avaria">Avaria/Perda</option>
+                                    <option value="ajuste">Ajuste Contábil</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Observações</label>
+                                <textarea id="adjustObservations" class="form-input" rows="3" placeholder="Observações sobre o ajuste"></textarea>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 25px;">
+                                <button type="button" class="btn btn-success" id="confirmAdjust">
+                                    <i class="fas fa-check"></i> Confirmar Ajuste
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelAdjust">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Event listeners do modal
+                const modal = document.getElementById('adjustStockModal');
+                const productSelect = document.getElementById('adjustProductSelect');
+                const currentStock = document.getElementById('currentStock');
+                const newStock = document.getElementById('newStock');
+                
+                // Atualizar estoque atual quando produto for selecionado
+                productSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const currentStockValue = selectedOption.getAttribute('data-current');
+                    currentStock.value = currentStockValue;
+                    newStock.value = currentStockValue;
+                });
+                
+                // Confirmar ajuste
+                document.getElementById('confirmAdjust').addEventListener('click', function() {
+                    const productId = productSelect.value;
+                    const newStockValue = parseInt(newStock.value) || 0;
+                    const reason = document.getElementById('adjustReason').value;
+                    const observations = document.getElementById('adjustObservations').value;
+                    
+                    if (!productId) {
+                        alert('Selecione um produto!');
+                        return;
+                    }
+                    
+                    if (!reason) {
+                        alert('Selecione o motivo do ajuste!');
+                        return;
+                    }
+                    
+                    const currentStockValue = parseInt(currentStock.value) || 0;
+                    const difference = newStockValue - currentStockValue;
+                    
+                    // Registrar o ajuste
+                    const adjustment = {
+                        id: generateId(),
+                        productId: productId,
+                        previousStock: currentStockValue,
+                        newStock: newStockValue,
+                        difference: difference,
+                        reason: reason,
+                        observations: observations,
+                        date: new Date().toISOString().split('T')[0],
+                        timestamp: new Date().toISOString(),
+                        user: localStorage.getItem('loggedInUser')
+                    };
+                    
+                    // Salvar ajuste no histórico
+                    const adjustments = JSON.parse(localStorage.getItem('stockAdjustments') || '[]');
+                    adjustments.push(adjustment);
+                    localStorage.setItem('stockAdjustments', JSON.stringify(adjustments));
+                    
+                    // Atualizar estoque do produto
+                    const productIndex = products.findIndex(p => p.id === productId);
+                    if (productIndex !== -1) {
+                        products[productIndex].stock = newStockValue;
+                        localStorage.setItem('products', JSON.stringify(products));
+                    }
+                    
+                    // Fechar modal
+                    modal.remove();
+                    
+                    alert(`Estoque ajustado com sucesso! Diferença: ${difference > 0 ? '+' : ''}${difference}`);
+                    
+                    // Atualizar interface
+                    updateDashboard();
+                    loadProductsTable();
+                    loadEntryFormProducts();
+                    loadExitFormProducts();
+                });
+                
+                // Cancelar ajuste
+                document.getElementById('cancelAdjust').addEventListener('click', function() {
+                    modal.remove();
+                });
+                
+                // Fechar modal ao clicar fora
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+            }
+
+            // Função para realizar inventário completo
+            function performInventory() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                
+                if (products.length === 0) {
+                    alert('Não há produtos cadastrados para realizar inventário!');
+                    return;
+                }
+                
+                // Criar modal de inventário
+                const modalHtml = `
+                    <div id="inventoryModal" style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 1000;
+                    ">
+                        <div style="
+                            background: white;
+                            padding: 30px;
+                            border-radius: 12px;
+                            width: 95%;
+                            max-width: 900px;
+                            max-height: 90vh;
+                            overflow-y: auto;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        ">
+                            <h3 style="margin-bottom: 20px; color: var(--primary-color);">
+                                <i class="fas fa-clipboard-list"></i> Inventário de Estoque
+                            </h3>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <p>Preencha o estoque contado para cada produto:</p>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Nome</th>
+                                            <th>Estoque Sistema</th>
+                                            <th>Estoque Contado</th>
+                                            <th>Diferença</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inventoryTableBody">
+                                        ${products.map((product, index) => `
+                                            <tr>
+                                                <td>${product.code}</td>
+                                                <td>${product.name}</td>
+                                                <td>${product.stock}</td>
+                                                <td>
+                                                    <input type="number" 
+                                                           id="counted_${product.id}" 
+                                                           class="form-input" 
+                                                           style="width: 100px;"
+                                                           value="${product.stock}"
+                                                           min="0">
+                                                </td>
+                                                <td id="difference_${product.id}">0</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Observações do Inventário</label>
+                                <textarea id="inventoryObservations" class="form-input" rows="3" placeholder="Observações sobre o inventário"></textarea>
+                            </div>
+                            
+                            <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+                                <strong>Resumo:</strong>
+                                <div id="inventorySummary">Calculando...</div>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 25px;">
+                                <button type="button" class="btn btn-success" id="confirmInventory">
+                                    <i class="fas fa-check"></i> Finalizar Inventário
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="cancelInventory">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Calcular diferenças automaticamente
+                products.forEach(product => {
+                    const input = document.getElementById(`counted_${product.id}`);
+                    const differenceCell = document.getElementById(`difference_${product.id}`);
+                    
+                    input.addEventListener('input', function() {
+                        const counted = parseInt(this.value) || 0;
+                        const system = product.stock;
+                        const difference = counted - system;
+                        
+                        differenceCell.textContent = difference;
+                        differenceCell.style.color = difference === 0 ? 'green' : difference > 0 ? 'blue' : 'red';
+                        
+                        updateInventorySummary();
+                    });
+                });
+                
+                // Atualizar resumo inicial
+                updateInventorySummary();
+                
+                // Event listeners do modal
+                const modal = document.getElementById('inventoryModal');
+                
+                // Confirmar inventário
+                document.getElementById('confirmInventory').addEventListener('click', function() {
+                    const observations = document.getElementById('inventoryObservations').value;
+                    const adjustments = [];
+                    
+                    products.forEach(product => {
+                        const countedInput = document.getElementById(`counted_${product.id}`);
+                        const counted = parseInt(countedInput.value) || 0;
+                        const system = product.stock;
+                        const difference = counted - system;
+                        
+                        if (difference !== 0) {
+                            adjustments.push({
+                                productId: product.id,
+                                productCode: product.code,
+                                productName: product.name,
+                                previousStock: system,
+                                newStock: counted,
+                                difference: difference
+                            });
+                        }
+                    });
+                    
+                    if (adjustments.length === 0) {
+                        alert('Nenhuma diferença encontrada. Estoque está correto!');
+                        modal.remove();
+                        return;
+                    }
+                    
+                    if (confirm(`Deseja aplicar ${adjustments.length} ajustes de estoque?`)) {
+                        // Aplicar ajustes
+                        adjustments.forEach(adj => {
+                            const productIndex = products.findIndex(p => p.id === adj.productId);
+                            if (productIndex !== -1) {
+                                products[productIndex].stock = adj.newStock;
+                            }
+                            
+                            // Registrar no histórico
+                            const adjustmentRecord = {
+                                id: generateId(),
+                                productId: adj.productId,
+                                previousStock: adj.previousStock,
+                                newStock: adj.newStock,
+                                difference: adj.difference,
+                                reason: 'inventario',
+                                observations: `Inventário: ${observations}`,
+                                date: new Date().toISOString().split('T')[0],
+                                timestamp: new Date().toISOString(),
+                                user: localStorage.getItem('loggedInUser')
+                            };
+                            
+                            const adjustmentsHistory = JSON.parse(localStorage.getItem('stockAdjustments') || '[]');
+                            adjustmentsHistory.push(adjustmentRecord);
+                            localStorage.setItem('stockAdjustments', JSON.stringify(adjustmentsHistory));
+                        });
+                        
+                        // Salvar produtos atualizados
+                        localStorage.setItem('products', JSON.stringify(products));
+                        
+                        // Fechar modal
+                        modal.remove();
+                        
+                        alert(`Inventário finalizado! ${adjustments.length} produtos ajustados.`);
+                        
+                        // Atualizar interface
+                        updateDashboard();
+                        loadProductsTable();
+                        loadEntryFormProducts();
+                        loadExitFormProducts();
+                    }
+                });
+                
+                // Cancelar inventário
+                document.getElementById('cancelInventory').addEventListener('click', function() {
+                    modal.remove();
+                });
+                
+                // Fechar modal ao clicar fora
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+                
+                function updateInventorySummary() {
+                    let totalDifferences = 0;
+                    let positiveCount = 0;
+                    let negativeCount = 0;
+                    let zeroCount = 0;
+                    
+                    products.forEach(product => {
+                        const countedInput = document.getElementById(`counted_${product.id}`);
+                        const counted = parseInt(countedInput.value) || 0;
+                        const difference = counted - product.stock;
+                        
+                        totalDifferences += Math.abs(difference);
+                        if (difference > 0) positiveCount++;
+                        else if (difference < 0) negativeCount++;
+                        else zeroCount++;
+                    });
+                    
+                    const summary = `
+                        Produtos com diferença: ${positiveCount + negativeCount}<br>
+                        - Acréscimos: ${positiveCount}<br>
+                        - Decréscimos: ${negativeCount}<br>
+                        - Sem diferença: ${zeroCount}<br>
+                        Total de itens com diferença: ${totalDifferences}
+                    `;
+                    
+                    document.getElementById('inventorySummary').innerHTML = summary;
+                }
+            }
+
+            // Função para visualizar histórico de ajustes
+            function viewAdjustmentHistory() {
+                const adjustments = JSON.parse(localStorage.getItem('stockAdjustments') || '[]');
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                
+                if (adjustments.length === 0) {
+                    alert('Não há histórico de ajustes de estoque!');
+                    return;
+                }
+                
+                // Criar modal de histórico
+                const modalHtml = `
+                    <div id="historyModal" style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.5);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 1000;
+                    ">
+                        <div style="
+                            background: white;
+                            padding: 30px;
+                            border-radius: 12px;
+                            width: 95%;
+                            max-width: 1000px;
+                            max-height: 90vh;
+                            overflow-y: auto;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        ">
+                            <h3 style="margin-bottom: 20px; color: var(--primary-color);">
+                                <i class="fas fa-history"></i> Histórico de Ajustes de Estoque
+                            </h3>
+                            
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Produto</th>
+                                            <th>Estoque Anterior</th>
+                                            <th>Novo Estoque</th>
+                                            <th>Diferença</th>
+                                            <th>Motivo</th>
+                                            <th>Usuário</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${adjustments.map(adj => {
+                                            const product = products.find(p => p.id === adj.productId);
+                                            const productName = product ? `${product.code} - ${product.name}` : 'Produto não encontrado';
+                                            const diffColor = adj.difference > 0 ? 'color: green;' : adj.difference < 0 ? 'color: red;' : '';
+                                            
+                                            return `
+                                                <tr>
+                                                    <td>${new Date(adj.date).toLocaleDateString('pt-BR')}</td>
+                                                    <td>${productName}</td>
+                                                    <td>${adj.previousStock}</td>
+                                                    <td>${adj.newStock}</td>
+                                                    <td style="${diffColor}">${adj.difference > 0 ? '+' : ''}${adj.difference}</td>
+                                                    <td>${getReasonText(adj.reason)}</td>
+                                                    <td>${adj.user}</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="form-actions" style="margin-top: 25px;">
+                                <button type="button" class="btn btn-secondary" id="closeHistory">
+                                    <i class="fas fa-times"></i> Fechar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Event listeners do modal
+                const modal = document.getElementById('historyModal');
+                
+                document.getElementById('closeHistory').addEventListener('click', function() {
+                    modal.remove();
+                });
+                
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+            }
+
+            function getReasonText(reason) {
+                const reasons = {
+                    'inventario': 'Inventário',
+                    'avaria': 'Avaria/Perda',
+                    'ajuste': 'Ajuste Contábil',
+                    'outro': 'Outro'
+                };
+                return reasons[reason] || reason;
+            }
+            
+            // =============================================
+            // NOVAS FUNÇÕES PARA IMPORTAR DO EXCEL
+            // =============================================
+            
+            async function importFromExcel() {
+                const fileInput = document.getElementById('excelFile');
+                const file = fileInput.files[0];
+                const statusDiv = document.getElementById('importStatus');
+                
+                if (!file) {
+                    statusDiv.textContent = 'Por favor, selecione um arquivo Excel.';
+                    statusDiv.className = 'import-status import-error';
+                    statusDiv.style.display = 'block';
+                    return;
+                }
+
+                // Validar tipo de arquivo
+                const validTypes = [
+                    'application/vnd.ms-excel',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'text/csv'
+                ];
+                
+                if (!validTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/)) {
+                    statusDiv.textContent = 'Tipo de arquivo inválido. Use .xlsx, .xls ou .csv.';
+                    statusDiv.className = 'import-status import-error';
+                    statusDiv.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    statusDiv.textContent = 'Processando arquivo...';
+                    statusDiv.className = 'import-status import-success';
+                    statusDiv.style.display = 'block';
+                    
+                    const data = await readExcelFile(file);
+                    
+                    if (!data || data.length === 0) {
+                        throw new Error('O arquivo está vazio ou não contém dados válidos.');
+                    }
+                    
+                    const result = processExcelData(data);
+                    
+                    statusDiv.innerHTML = `
+                        <strong>Importação concluída com sucesso!</strong><br>
+                        Produtos processados: ${result.processed}<br>
+                        Produtos adicionados: ${result.added}<br>
+                        Produtos atualizados: ${result.updated}
+                    `;
+                    statusDiv.className = 'import-status import-success';
+                    
+                    // Atualizar a interface
+                    updateDashboard();
+                    loadProductsTable();
+                    loadEntryFormProducts();
+                    loadExitFormProducts();
+                    
+                    // Limpar o arquivo
+                    fileInput.value = '';
+                    document.getElementById('fileInfo').textContent = '';
+                    
+                } catch (error) {
+                    console.error('Erro na importação:', error);
+                    statusDiv.textContent = 'Erro ao importar arquivo: ' + error.message;
+                    statusDiv.className = 'import-status import-error';
+                    statusDiv.style.display = 'block';
+                }
+            }
+
+            function readExcelFile(file) {
+                return new Promise((resolve, reject) => {
+                    // Verificar se a biblioteca XLSX está carregada
+                    if (typeof XLSX === 'undefined') {
+                        reject(new Error('Biblioteca XLSX não carregada. Verifique a conexão com a internet.'));
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        try {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { 
+                                type: 'array',
+                                cellDates: true,
+                                cellStyles: true
+                            });
+                            
+                            if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                                reject(new Error('O arquivo não contém planilhas.'));
+                                return;
+                            }
+                            
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            
+                            if (!worksheet) {
+                                reject(new Error('Não foi possível acessar a planilha.'));
+                                return;
+                            }
+                            
+                            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+                                header: 'A', // Usar cabeçalhos da primeira linha
+                                defval: '', // Valor padrão para células vazias
+                                raw: false // Processar datas e números
+                            });
+                            
+                            resolve(jsonData);
+                        } catch (error) {
+                            reject(new Error('Formato de arquivo inválido ou corrompido: ' + error.message));
+                        }
+                    };
+                    
+                    reader.onerror = function() {
+                        reject(new Error('Erro ao ler o arquivo. O arquivo pode estar corrompido.'));
+                    };
+                    
+                    reader.onabort = function() {
+                        reject(new Error('Leitura do arquivo cancelada.'));
+                    };
+                    
+                    // Adicionar timeout para arquivos muito grandes
+                    setTimeout(() => {
+                        if (reader.readyState !== 2) { // DONE
+                            reader.abort();
+                            reject(new Error('Tempo limite excedido ao ler o arquivo.'));
+                        }
+                    }, 30000); // 30 segundos
+                    
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            function processExcelData(data) {
+                const currentUser = localStorage.getItem('loggedInUser');
+                let products = JSON.parse(localStorage.getItem('products') || '[]');
+                
+                let processed = 0;
+                let added = 0;
+                let updated = 0;
+                
+                // Função para converter string numérica com vírgula para número
+                function parseNumber(value) {
+                    if (typeof value === 'number') return value;
+                    if (typeof value !== 'string') return 0;
+                    
+                    // Remove espaços e R$ se existirem
+                    let cleaned = value.toString().trim().replace(/\s/g, '');
+                    cleaned = cleaned.replace('R$', '').replace('USD', '').replace('€', '');
+                    
+                    // Verifica se tem vírgula como separador decimal
+                    if (cleaned.includes(',') && !cleaned.includes('.')) {
+                        // Formato brasileiro: 1.234,56 -> 1234.56
+                        cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+                    } else if (cleaned.includes('.') && cleaned.includes(',')) {
+                        // Formato internacional com separador de milhar: 1,234.56
+                        cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+                    }
+                    
+                    // Remove qualquer caractere não numérico exceto ponto e sinal negativo
+                    cleaned = cleaned.replace(/[^\d.-]/g, '');
+                    
+                    const number = parseFloat(cleaned);
+                    return isNaN(number) ? 0 : number;
+                }
+                
+                // Função para converter string para inteiro
+                function parseInteger(value) {
+                    if (typeof value === 'number') return Math.round(value);
+                    if (typeof value !== 'string') return 0;
+                    
+                    // Remove tudo que não é número
+                    const cleaned = value.toString().replace(/[^\d]/g, '');
+                    const number = parseInt(cleaned, 10);
+                    return isNaN(number) ? 0 : number;
+                }
+                
+                data.forEach((row, index) => {
+                    // Pular linhas vazias
+                    if (!row['Código'] && !row['Nome'] && !row['codigo'] && !row['nome']) return;
+                    
+                    processed++;
+                    
+                    // Mapear colunas do Excel para o sistema com tratamento de números
+                    const productData = {
+                        id: generateId(),
+                        code: row['Código'] || row['codigo'] || `AUTO_${Date.now()}_${index}`,
+                        name: row['Nome'] || row['nome'] || row['Descrição'] || row['descricao'] || 'Produto Sem Nome',
+                        category: row['Categoria'] || row['categoria'] || 'Outros',
+                        unit: row['Unidade'] || row['unidade'] || 'Unidade',
+                        cost: parseNumber(row['Custo'] || row['custo'] || row['Custo Unitário'] || row['custo_unitario'] || 0),
+                        price: parseNumber(row['Preço'] || row['preco'] || row['Preço Venda'] || row['preco_venda'] || 0),
+                        minStock: parseInteger(row['Estoque Mínimo'] || row['estoque_minimo'] || row['Mínimo'] || row['minimo'] || 0),
+                        maxStock: parseInteger(row['Estoque Máximo'] || row['estoque_maximo'] || row['Máximo'] || row['maximo'] || 0),
+                        stock: parseInteger(row['Estoque'] || row['estoque'] || row['Estoque Atual'] || row['estoque_atual'] || 0),
+                        description: row['Descrição'] || row['descricao'] || '',
+                        createdBy: currentUser,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    // Verificar se produto já existe (atualizar)
+                    const existingIndex = products.findIndex(p => p.code === productData.code);
+                    if (existingIndex !== -1) {
+                        // Mantém o ID original e atualiza os dados
+                        productData.id = products[existingIndex].id;
+                        products[existingIndex] = { ...products[existingIndex], ...productData };
+                        updated++;
+                    } else {
+                        products.push(productData);
+                        added++;
+                    }
+                });
+                
+                localStorage.setItem('products', JSON.stringify(products));
+                
+                return {
+                    processed,
+                    added,
+                    updated
+                };
+            }
+
+            function downloadExcelTemplate() {
+                const templateData = [
+                    {
+                        'Código': 'P001',
+                        'Nome': 'Fio Elétrico 2.5mm',
+                        'Categoria': 'Elétrica',
+                        'Unidade': 'Metro',
+                        'Custo': '2,50',  // Agora com vírgula
+                        'Preço': '3,50',  // Agora com vírgula
+                        'Estoque Mínimo': '100',
+                        'Estoque Máximo': '1000',
+                        'Estoque': '0',
+                        'Descrição': 'Fio elétrico 2.5mm vermelho'
+                    },
+                    {
+                        'Código': 'P002',
+                        'Nome': 'Parafuso 3x20mm',
+                        'Categoria': 'Ferragens',
+                        'Unidade': 'Unidade',
+                        'Custo': '0,15',  // Agora com vírgula
+                        'Preço': '0,25',  // Agora com vírgula
+                        'Estoque Mínimo': '500',
+                        'Estoque Máximo': '5000',
+                        'Estoque': '0',
+                        'Descrição': 'Parafuso sextavado 3x20mm'
+                    }
+                ];
+                
+                const worksheet = XLSX.utils.json_to_sheet(templateData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Produtos');
+                
+                // Ajustar largura das colunas
+                const colWidths = [
+                    { wch: 15 }, // Código
+                    { wch: 30 }, // Nome
+                    { wch: 15 }, // Categoria
+                    { wch: 12 }, // Unidade
+                    { wch: 10 }, // Custo
+                    { wch: 10 }, // Preço
+                    { wch: 15 }, // Estoque Mínimo
+                    { wch: 15 }, // Estoque Máximo
+                    { wch: 10 }, // Estoque
+                    { wch: 40 }  // Descrição
+                ];
+                worksheet['!cols'] = colWidths;
+                
+                XLSX.writeFile(workbook, 'modelo_importacao_produtos.xlsx');
+            }
+
+            // =============================================
+            // FUNÇÕES DO GOOGLE SHEETS - VERSÃO SIMPLIFICADA
+            // =============================================
+
+            async function connectGoogleSheets() {
+                const sheetUrl = document.getElementById('googleSheetUrl').value;
+                const statusDiv = document.getElementById('importStatus');
+                
+                if (!sheetUrl) {
+                    statusDiv.textContent = 'Por favor, insira a URL da planilha Google Sheets.';
+                    statusDiv.className = 'import-status import-error';
+                    statusDiv.style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    statusDiv.textContent = 'Conectando com Google Sheets...';
+                    statusDiv.className = 'import-status import-success';
+                    statusDiv.style.display = 'block';
+                    
+                    // Extrair ID da planilha da URL
+                    const sheetId = extractGoogleSheetId(sheetUrl);
+                    
+                    if (!sheetId) {
+                        throw new Error('URL do Google Sheets inválida. Use uma URL como: https://docs.google.com/spreadsheets/d/SEU_ID_AQUI/edit');
+                    }
+                    
+                    // Método mais simples - usar exportação direta
+                    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+                    
+                    const response = await fetch(csvUrl);
+                    
+                    if (!response.ok) {
+                        // Se falhar, tentar método alternativo
+                        const altUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+                        const altResponse = await fetch(altUrl);
+                        
+                        if (!altResponse.ok) {
+                            throw new Error(`Não foi possível acessar a planilha (${response.status}). Verifique se a planilha é pública.`);
+                        }
+                        
+                        const csvText = await altResponse.text();
+                        await processGoogleSheetsData(csvText, sheetId, sheetUrl, statusDiv);
+                    } else {
+                        const csvText = await response.text();
+                        await processGoogleSheetsData(csvText, sheetId, sheetUrl, statusDiv);
+                    }
+                    
+                } catch (error) {
+                    console.error('Erro ao conectar com Google Sheets:', error);
+                    statusDiv.innerHTML = `
+                        <strong>Erro ao conectar com Google Sheets:</strong><br>
+                        ${error.message}<br><br>
+                        <strong>Para resolver:</strong><br>
+                        1. Verifique se a planilha é pública (Compartilhar → Qualquer pessoa com o link)<br>
+                        2. Use uma URL válida do Google Sheets<br>
+                        3. Verifique sua conexão com internet
+                    `;
+                    statusDiv.className = 'import-status import-error';
+                    googleSheetConnected = false;
+                }
+            }
+
+            async function processGoogleSheetsData(csvText, sheetId, sheetUrl, statusDiv) {
+                // Verificar se o CSV não está vazio
+                if (!csvText || csvText.trim().length === 0) {
+                    throw new Error('A planilha está vazia ou não contém dados.');
+                }
+                
+                // Converter CSV para JSON
+                const data = csvToJson(csvText);
+                
+                if (data.length === 0) {
+                    throw new Error('Nenhum dado válido encontrado na planilha.');
+                }
+                
+                // Salvar informações da planilha
+                localStorage.setItem('googleSheetId', sheetId);
+                localStorage.setItem('googleSheetUrl', sheetUrl);
+                
+                googleSheetConnected = true;
+                
+                // Processar os dados
+                const result = processExcelData(data);
+                
+                statusDiv.innerHTML = `
+                    <strong>Conexão e sincronização concluídas com sucesso!</strong><br>
+                    Produtos processados: ${result.processed}<br>
+                    Produtos adicionados: ${result.added}<br>
+                    Produtos atualizados: ${result.updated}<br>
+                    <small>Planilha ID: ${sheetId}</small>
+                `;
+                statusDiv.className = 'import-status import-success';
+                
+                // Atualizar a interface
+                updateDashboard();
+                loadProductsTable();
+                loadEntryFormProducts();
+                loadExitFormProducts();
+            }
+
+            function extractGoogleSheetId(url) {
+                try {
+                    // Padrão: /spreadsheets/d/{ID}/edit
+                    const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+                    return match ? match[1] : null;
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            function csvToJson(csvText) {
+                const lines = csvText.split('\n').filter(line => line.trim() !== '');
+                if (lines.length === 0) return [];
+                
+                // Extrair cabeçalhos
+                const headers = lines[0].split(',').map(header => 
+                    header.replace(/^"|"$/g, '').trim()
+                );
+                
+                // Processar linhas de dados
+                const result = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i];
+                    const values = parseCsvLine(line);
+                    const obj = {};
+                    
+                    headers.forEach((header, index) => {
+                        if (values[index] !== undefined) {
+                            let value = values[index].replace(/^"|"$/g, '').trim();
+                            obj[header] = value;
+                        }
+                    });
+                    
+                    result.push(obj);
+                }
+                
+                return result;
+            }
+
+            function parseCsvLine(line) {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                
+                result.push(current);
+                return result;
+            }
+
+            async function syncWithGoogleSheets() {
+                const statusDiv = document.getElementById('importStatus');
+                const sheetId = localStorage.getItem('googleSheetId');
+                
+                if (!sheetId) {
+                    statusDiv.textContent = 'Nenhuma planilha Google Sheets configurada.';
+                    statusDiv.className = 'import-status import-error';
+                    statusDiv.style.display = 'block';
+                    return;
+                }
+                
+                try {
+                    statusDiv.textContent = 'Sincronizando com Google Sheets...';
+                    statusDiv.className = 'import-status import-success';
+                    statusDiv.style.display = 'block';
+                    
+                    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+                    const response = await fetch(csvUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error('Erro ao sincronizar com a planilha.');
+                    }
+                    
+                    const csvText = await response.text();
+                    const data = csvToJson(csvText);
+                    const result = processExcelData(data);
+                    
+                    statusDiv.innerHTML = `
+                        <strong>Sincronização concluída com sucesso!</strong><br>
+                        Última atualização: ${new Date().toLocaleTimeString('pt-BR')}<br>
+                        Produtos processados: ${result.processed}<br>
+                        Produtos adicionados: ${result.added}<br>
+                        Produtos atualizados: ${result.updated}
+                    `;
+                    statusDiv.className = 'import-status import-success';
+                    
+                    // Atualizar a interface
+                    updateDashboard();
+                    loadProductsTable();
+                    loadEntryFormProducts();
+                    loadExitFormProducts();
+                    
+                } catch (error) {
+                    console.error('Erro na sincronização:', error);
+                    statusDiv.textContent = 'Erro na sincronização: ' + error.message;
+                    statusDiv.className = 'import-status import-error';
+                }
+            }
+
+            function toggleAutoSync() {
+                const button = document.getElementById('autoSyncBtn');
+                const statusDiv = document.getElementById('importStatus');
+                
+                if (autoSyncInterval) {
+                    // Parar sincronização automática
+                    clearInterval(autoSyncInterval);
+                    autoSyncInterval = null;
+                    button.innerHTML = '<i class="fas fa-redo"></i> Ativar Sincronização Automática';
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-info');
+                    statusDiv.textContent = 'Sincronização automática desativada';
+                    statusDiv.className = 'import-status import-success';
+                    statusDiv.style.display = 'block';
+                } else {
+                    // Verificar se há uma planilha configurada
+                    const sheetId = localStorage.getItem('googleSheetId');
+                    if (!sheetId) {
+                        statusDiv.textContent = 'Configure a URL do Google Sheets primeiro.';
+                        statusDiv.className = 'import-status import-error';
+                        statusDiv.style.display = 'block';
+                        return;
+                    }
+                    
+                    // Iniciar sincronização automática
+                    statusDiv.textContent = 'Sincronização automática ativada (a cada 5 minutos)';
+                    statusDiv.className = 'import-status import-success';
+                    statusDiv.style.display = 'block';
+                    
+                    button.innerHTML = '<i class="fas fa-stop"></i> Parar Sincronização Automática';
+                    button.classList.remove('btn-info');
+                    button.classList.add('btn-success');
+                    
+                    // Fazer primeira sincronização imediatamente
+                    syncWithGoogleSheets();
+                    
+                    // Configurar sincronização automática a cada 5 minutos
+                    autoSyncInterval = setInterval(() => {
+                        syncWithGoogleSheets();
+                    }, 300000); // 5 minutos
+                }
+            }
+
+            // Adicione esta função para carregar a URL salva ao iniciar o sistema
+            function loadSavedGoogleSheet() {
+                const savedUrl = localStorage.getItem('googleSheetUrl');
+                if (savedUrl) {
+                    document.getElementById('googleSheetUrl').value = savedUrl;
+                }
+            }
+            
+            // Funções de exportação
+            function exportStockReport() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const currentUser = localStorage.getItem('loggedInUser');
+                
+                if (products.length === 0) {
+                    alert('Não há produtos cadastrados para exportar!');
+                    return;
+                }
+                
+                let csvContent = "Código;Nome;Categoria;Estoque;Estoque Mínimo;Custo Unitário;Preço Venda;Valor Total;Cadastrado Por;Data/Hora Cadastro\n";
+                
+                products.forEach(product => {
+                    const totalValue = (product.stock || 0) * (product.cost || 0);
+                    const cadastroDate = new Date(product.createdAt).toLocaleString('pt-BR');
+                    csvContent += `${product.code};${product.name};${product.category};${product.stock || 0};${product.minStock};R$ ${(product.cost || 0).toFixed(2)};R$ ${(product.price || 0).toFixed(2)};R$ ${totalValue.toFixed(2)};${currentUser};${cadastroDate}\n`;
+                });
+                
+                downloadCSV(csvContent, 'relatorio_estoque.csv');
+                alert('Relatório de estoque exportado com sucesso!');
+            }
+            
+            function exportMovementsReport() {
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const currentUser = localStorage.getItem('loggedInUser');
+                
+                if (entries.length === 0 && exits.length === 0) {
+                    alert('Não há movimentações para exportar!');
+                    return;
+                }
+                
+                let csvContent = "Data;Tipo;Produto;Quantidade;Valor Unitário;Valor Total;Responsável;Registrado Por;Data/Hora Registro\n";
+                
+                // Entradas
+                entries.forEach(entry => {
+                    const product = products.find(p => p.id === entry.productId);
+                    const productName = product ? product.name : 'Produto não encontrado';
+                    const registroDate = new Date(entry.createdAt).toLocaleString('pt-BR');
+                    csvContent += `${entry.date};Entrada;${productName};${entry.quantity};R$ ${(entry.unitCost || 0).toFixed(2)};R$ ${(entry.totalCost || 0).toFixed(2)};${entry.supplier};${currentUser};${registroDate}\n`;
+                });
+                
+                // Saídas
+                exits.forEach(exit => {
+                    const product = products.find(p => p.id === exit.productId);
+                    const productName = product ? product.name : 'Produto não encontrado';
+                    const registroDate = new Date(exit.createdAt).toLocaleString('pt-BR');
+                    csvContent += `${exit.date};Saída;${productName};${exit.quantity};R$ ${(exit.unitCost || 0).toFixed(2)};R$ ${(exit.totalCost || 0).toFixed(2)};${exit.requester};${currentUser};${registroDate}\n`;
+                });
+                
+                downloadCSV(csvContent, 'relatorio_movimentacoes.csv');
+                alert('Relatório de movimentações exportado com sucesso!');
+            }
+            
+            function exportAlertsReport() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const currentUser = localStorage.getItem('loggedInUser');
+                const alertProducts = products.filter(p => p.stock === 0 || p.stock <= p.minStock);
+                
+                if (alertProducts.length === 0) {
+                    alert('Não há alertas de estoque para exportar!');
+                    return;
+                }
+                
+                let csvContent = "Código;Nome;Categoria;Estoque Atual;Estoque Mínimo;Status;Cadastrado Por;Data/Hora Cadastro\n";
+                
+                alertProducts.forEach(product => {
+                    const status = product.stock === 0 ? 'EM FALTA' : 'ESTOQUE BAIXO';
+                    const cadastroDate = new Date(product.createdAt).toLocaleString('pt-BR');
+                    csvContent += `${product.code};${product.name};${product.category};${product.stock};${product.minStock};${status};${currentUser};${cadastroDate}\n`;
+                });
+                
+                downloadCSV(csvContent, 'relatorio_alertas.csv');
+                alert('Relatório de alertas exportado com sucesso!');
+            }
+            
+            function downloadCSV(csvContent, filename) {
+                const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', filename);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            // Funções auxiliares
+            function loadUsageStatistics() {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                const adjustments = JSON.parse(localStorage.getItem('stockAdjustments') || '[]');
+                
+                const ctx = document.getElementById('usageStatisticsChart').getContext('2d');
+                
+                // Dados dos últimos 6 meses
+                const months = [];
+                const monthlyEntries = [];
+                const monthlyExits = [];
+                const monthlyAdjustments = [];
+                
+                // Gerar dados dos últimos 6 meses
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - i);
+                    const monthYear = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+                    months.push(monthYear);
+                    
+                    // Filtrar movimentações do mês
+                    const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+                    const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                    
+                    const monthEntries = entries.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= monthStart && entryDate <= monthEnd;
+                    });
+                    
+                    const monthExits = exits.filter(exit => {
+                        const exitDate = new Date(exit.date);
+                        return exitDate >= monthStart && exitDate <= monthEnd;
+                    });
+                    
+                    const monthAdjustments = adjustments.filter(adj => {
+                        const adjDate = new Date(adj.date);
+                        return adjDate >= monthStart && adjDate <= monthEnd;
+                    });
+                    
+                    monthlyEntries.push(monthEntries.reduce((sum, entry) => sum + entry.quantity, 0));
+                    monthlyExits.push(monthExits.reduce((sum, exit) => sum + exit.quantity, 0));
+                    monthlyAdjustments.push(monthAdjustments.length);
+                }
+                
+                // Estatísticas gerais
+                const totalProducts = products.length;
+                const totalValue = products.reduce((sum, product) => sum + (product.stock * product.cost), 0);
+                const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= p.minStock).length;
+                const outOfStockProducts = products.filter(p => p.stock === 0).length;
+                const totalMovements = entries.length + exits.length;
+                
+                // Criar gráfico principal
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                label: 'Entradas (Quantidade)',
+                                data: monthlyEntries,
+                                backgroundColor: 'rgba(39, 174, 96, 0.7)',
+                                borderColor: 'rgba(39, 174, 96, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Saídas (Quantidade)',
+                                data: monthlyExits,
+                                backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                borderColor: 'rgba(231, 76, 60, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Ajustes (Quantidade)',
+                                data: monthlyAdjustments,
+                                type: 'line',
+                                fill: false,
+                                borderColor: 'rgba(52, 152, 219, 1)',
+                                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                                borderWidth: 2,
+                                pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Estatísticas de Uso - Movimentações Mensais',
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Itens'
+                                },
+                                beginAtZero: true
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Ajustes'
+                                },
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Adicionar cards com estatísticas abaixo do gráfico
+                const chartContainer = document.querySelector('#management .chart-container');
+                
+                // Remover estatísticas anteriores se existirem
+                const existingStats = chartContainer.querySelector('.usage-stats-cards');
+                if (existingStats) {
+                    existingStats.remove();
+                }
+                
+                const statsHtml = `
+                    <div class="usage-stats-cards" style="margin-top: 30px;">
+                        <h4 style="margin-bottom: 20px; color: var(--primary-color);">
+                            <i class="fas fa-chart-line"></i> Estatísticas Gerais
+                        </h4>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value">${totalProducts}</div>
+                                <div class="metric-label">Total de Produtos</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">R$ ${totalValue.toFixed(2)}</div>
+                                <div class="metric-label">Valor Total em Estoque</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">${lowStockProducts}</div>
+                                <div class="metric-label">Produtos com Estoque Baixo</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">${outOfStockProducts}</div>
+                                <div class="metric-label">Produtos em Falta</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">${entries.length}</div>
+                                <div class="metric-label">Total de Entradas</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">${exits.length}</div>
+                                <div class="metric-label">Total de Saídas</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">${totalMovements}</div>
+                                <div class="metric-label">Total de Movimentações</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">${adjustments.length}</div>
+                                <div class="metric-label">Ajustes Realizados</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                chartContainer.insertAdjacentHTML('beforeend', statsHtml);
+            }
+            
+            // Funções globais para os botões
+            window.editProduct = function(id) {
+                const products = JSON.parse(localStorage.getItem('products') || '[]');
+                const product = products.find(p => p.id === id);
+                
+                if (product) {
+                    document.getElementById('productCode').value = product.code;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productCategory').value = product.category;
+                    document.getElementById('productUnit').value = product.unit;
+                    document.getElementById('productCost').value = product.cost;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productMinStock').value = product.minStock;
+                    document.getElementById('productMaxStock').value = product.maxStock;
+                    document.getElementById('productDescription').value = product.description;
+                    
+                    // Remover produto para atualização
+                    const updatedProducts = products.filter(p => p.id !== id);
+                    localStorage.setItem('products', JSON.stringify(updatedProducts));
+                    
+                    alert('Produto carregado para edição. Faça as alterações e clique em Cadastrar Produto.');
+                }
+            }
+            
+            window.deleteProduct = function(id) {
+                if (confirm('Tem certeza que deseja excluir este produto?')) {
+                    const products = JSON.parse(localStorage.getItem('products') || '[]');
+                    const updatedProducts = products.filter(p => p.id !== id);
+                    localStorage.setItem('products', JSON.stringify(updatedProducts));
+                    
+                    loadProductsTable();
+                    updateDashboard();
+                    loadEntryFormProducts();
+                    loadExitFormProducts();
+                }
+            }
+            
+            window.deleteEntry = function(id) {
+                if (confirm('Tem certeza que deseja excluir esta entrada?')) {
+                    const entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                    const entry = entries.find(e => e.id === id);
+                    
+                    if (entry) {
+                        // Reverter estoque
+                        const products = JSON.parse(localStorage.getItem('products') || '[]');
+                        const productIndex = products.findIndex(p => p.id === entry.productId);
+                        
+                        if (productIndex !== -1) {
+                            products[productIndex].stock -= entry.quantity;
+                            localStorage.setItem('products', JSON.stringify(products));
+                        }
+                        
+                        // Remover entrada
+                        const updatedEntries = entries.filter(e => e.id !== id);
+                        localStorage.setItem('entries', JSON.stringify(updatedEntries));
+                        
+                        loadEntriesTable();
+                        updateDashboard();
+                        loadProductsTable();
+                    }
+                }
+            }
+            
+            window.deleteExit = function(id) {
+                if (confirm('Tem certeza que deseja excluir esta saída?')) {
+                    const exits = JSON.parse(localStorage.getItem('exits') || '[]');
+                    const exit = exits.find(e => e.id === id);
+                    
+                    if (exit) {
+                        // Reverter estoque
+                        const products = JSON.parse(localStorage.getItem('products') || '[]');
+                        const productIndex = products.findIndex(p => p.id === exit.productId);
+                        
+                        if (productIndex !== -1) {
+                            products[productIndex].stock += exit.quantity;
+                            localStorage.setItem('products', JSON.stringify(products));
+                        }
+                        
+                        // Remover saída
+                        const updatedExits = exits.filter(e => e.id !== id);
+                        localStorage.setItem('exits', JSON.stringify(updatedExits));
+                        
+                        loadExitsTable();
+                        updateDashboard();
+                        loadProductsTable();
+                    }
+                }
+            }
+            
+            // =============================================
+            // FUNÇÃO GLOBAL PARA SELEÇÃO EM MASSA
+            // =============================================
+            window.toggleProductSelection = toggleProductSelection;
+        });
+    </script>
+</body>
+</html>
